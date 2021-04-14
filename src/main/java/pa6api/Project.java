@@ -11,24 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.google.gson.Gson;
-
 public class Project extends PA6API {
     private String uuid;
-    private Gson gson = new Gson();
     private Map<String, Object> postParams = new HashMap<String, Object>();
 
-    public Project(String uuid, String url, String userName, String pwd, String sid) {
+    public Project(String uuid, String url, String userName, String pwd, String sid) throws Exception {
         super(url, userName, pwd, sid);
         this.uuid = uuid;
         this.postParams.put("prjUUID", uuid);
     }
 
-    public HttpResponse<String> getNodeListRaw() throws IOException, InterruptedException {
+    public HttpResponse<String> getNodeListRaw() throws Exception {
         return this.sendSafe(this.requestAPI("/project/nodes?prjUUID=" + this.uuid).GET().build());
     }
 
-    public List<Node> getNodeList() throws IOException, InterruptedException {
+    public List<Node> getNodeList() throws Exception {
         HttpResponse<String> resp = getNodeListRaw();
 
         Map<String,Object> json = gson.fromJson(resp.body(), HashMap.class);
@@ -50,19 +47,19 @@ public class Project extends PA6API {
         return list;
     }
 
-    public HttpResponse<String> getExecutionStatsRaw() throws IOException, InterruptedException {
+    public HttpResponse<String> getExecutionStatsRaw() throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/execution-statistics?prjUUID=" + this.uuid).GET().build()
         );
     }
 
-    public HttpResponse<String> getTasksRaw() throws IOException, InterruptedException {
+    public HttpResponse<String> getTasksRaw() throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/tasks?prjUUID=" + this.uuid).GET().build()
         );
     }
 
-    public HttpResponse<String> executeRaw(Node [] nodes) throws IOException, InterruptedException {
+    public HttpResponse<String> executeRaw(Node [] nodes) throws Exception {
         Map<String, Object> params = new HashMap<String, Object>(postParams);
         List<Object> nodesList = new ArrayList<Object>(nodes.length);
         for (Node node : nodes) {
@@ -77,13 +74,13 @@ public class Project extends PA6API {
         return this.sendSafe(this.requestAPI("/project/execute").POST(postData).build());
     }
 
-    public HttpResponse<String> isRunningRaw(String waveId) throws IOException, InterruptedException {
+    public HttpResponse<String> isRunningRaw(String waveId) throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/is-running?prjUUID=" + this.uuid + "&executionWave=" + waveId).GET().build()
         );
     }
 
-    public Boolean isRunning(String waveId) throws IOException, InterruptedException {
+    public Boolean isRunning(String waveId) throws Exception {
         HttpResponse<String> resp = isRunningRaw(waveId);
         Map<String, Object> json = gson.fromJson(resp.body(), HashMap.class);
         Object result = json.get("result");
@@ -93,14 +90,14 @@ public class Project extends PA6API {
         return result.equals(1.0);
     }
 
-    public String execute(Node[] nodes) throws IOException, InterruptedException {
+    public String execute(Node[] nodes) throws Exception {
         HttpResponse<String> resp = executeRaw(nodes);
         if (resp.statusCode() == 202)
             return parseExecutionWaveId(resp.headers());
         return "";
     }
 
-    public String execute(Node[] nodes, Boolean wait) throws IOException, InterruptedException {
+    public String execute(Node[] nodes, Boolean wait) throws Exception {
         String waveId = execute(nodes);
         if (waveId.isEmpty())
             throw new IOException("Unexpected format of result");
@@ -112,19 +109,19 @@ public class Project extends PA6API {
         return waveId;
     }
 
-    public HttpResponse<String> save() throws IOException, InterruptedException {
+    public HttpResponse<String> save() throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/save").POST(BodyPublishers.ofString(postParams())).build()
         );
     }
 
-    public HttpResponse<String> abort() throws IOException, InterruptedException {
+    public HttpResponse<String> abort() throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/global-abort").POST(BodyPublishers.ofString(postParams())).build()
         );
     }
 
-    public HttpResponse<String> unload() throws IOException, InterruptedException {
+    public HttpResponse<String> unload() throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/unload").POST(BodyPublishers.ofString(postParams())).build()
         );
