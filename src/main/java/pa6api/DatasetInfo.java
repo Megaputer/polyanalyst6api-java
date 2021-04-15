@@ -1,12 +1,14 @@
 package pa6api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DatasetInfo {
     public long rowCount = 0;
     public List<ColumnInfo> columnsInfo = new ArrayList<ColumnInfo>();
+    public Map<String, Integer> colIdx = new HashMap<String, Integer>();
 
     static DatasetInfo fromMap(Map<String, Object> map) {
         DatasetInfo info = new DatasetInfo();
@@ -14,8 +16,11 @@ public class DatasetInfo {
 
         List<Map<String, Object>> columnsInfo = List.class.cast(map.get("columnsInfo"));
         info.columnsInfo = new ArrayList<ColumnInfo>(columnsInfo.size());
+        int colIdx = 0;
         for (Map<String, Object> col : columnsInfo) {
-            info.columnsInfo.add(ColumnInfo.fromMap(col));
+            ColumnInfo colInfo = ColumnInfo.fromMap(col);
+            info.colIdx.put(colInfo.title, colIdx++);
+            info.columnsInfo.add(colInfo);
         }
         return info;
     }
