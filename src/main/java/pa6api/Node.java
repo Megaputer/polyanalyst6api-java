@@ -1,20 +1,25 @@
 package pa6api;
 
+import java.util.Map;
+
 public class Node {
     String name = "";
     String type = "";
 
-    String id = "";
+    long id;
     String status = "";
 
-    public Node() {
+    static Node fromMap(Map<String, Object> map) {
+        Node node = new Node();
+        node.name = map.get("name").toString();
+        node.type = map.get("type").toString();
+        node.status = map.get("status").toString();
+        node.id = (long)(double)map.get("id");
+
+        return node;
     }
 
-    public Node(String name, String type) {
-        this.name = name;
-        this.type = type;
-    }
-
+    @Override
     public String toString() {
         return "name: \"" + name + "\", type: \"" + type + "\", id: \"" + id + "\", status: \"" + status + "\"";
     }

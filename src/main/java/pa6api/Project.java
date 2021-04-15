@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class Project extends PA6API {
@@ -21,42 +22,59 @@ public class Project extends PA6API {
         this.postParams.put("prjUUID", uuid);
     }
 
-    public HttpResponse<String> getNodeListRaw() throws Exception {
+    protected HttpResponse<String> getNodeListRaw() throws Exception {
         return this.sendSafe(this.requestAPI("/project/nodes?prjUUID=" + this.uuid).GET().build());
     }
 
     public List<Node> getNodeList() throws Exception {
         HttpResponse<String> resp = getNodeListRaw();
 
-        Map<String,Object> json = gson.fromJson(resp.body(), HashMap.class);
+        Map<String,Object> json = gson.fromJson(resp.body(), TreeMap.class);
         Object nodesObj = json.get("nodes");
         if (nodesObj == null || nodesObj instanceof List == false)
-            throw new IOException("Unexpected format of result");
+            throw new APIResultException("Expected \"nodes\" key");
 
         List<Node> list = new ArrayList<Node>();
         List<Map<String, Object>> nodes = List.class.cast(nodesObj);
-        for (Map<String, Object> _node : nodes) {
-            Node node = new Node();
-            node.name = _node.get("name").toString();
-            node.type = _node.get("type").toString();
-            node.status = _node.get("status").toString();
-            node.id = String.valueOf(Math.round((Double)_node.get("id")));
-            list.add(node);
+        for (Map<String, Object> map : nodes) {
+            list.add(Node.fromMap(map));
         }
 
         return list;
     }
 
-    public HttpResponse<String> getExecutionStatsRaw() throws Exception {
+    protected HttpResponse<String> getExecutionStatsRaw() throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/execution-statistics?prjUUID=" + this.uuid).GET().build()
         );
     }
 
-    public HttpResponse<String> getTasksRaw() throws Exception {
+    public List<NodeExecStatItem> getExecutionStats() throws Exception {
+        Map<String, Object> json = gson.fromJson(getExecutionStatsRaw().body(), TreeMap.class);
+        if (!json.containsKey("nodes") || !(json.get("nodes") instanceof List))
+            throw new APIResultException("expected \"nodes\" key with list of nodes");
+
+        List<Map<String, Object>> nodes = List.class.cast(json.get("nodes"));
+        List<NodeExecStatItem> res = new ArrayList<NodeExecStatItem>(nodes.size());
+        for (Map<String, Object> node : nodes) {
+            res.add(NodeExecStatItem.fromMap(node));
+        }
+        return res;
+    }
+
+    protected HttpResponse<String> getTasksRaw() throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/tasks?prjUUID=" + this.uuid).GET().build()
         );
+    }
+
+    public List<TaskItem> getTasks() throws Exception {
+        List<Map<String, Object>> json = gson.fromJson(getTasksRaw().body(), List.class);
+        List<TaskItem> list = new ArrayList<TaskItem>(json.size());
+        for (Map<String, Object> item: json) {
+            list.add(TaskItem.fromMap(item));
+        }
+        return list;
     }
 
     public HttpResponse<String> executeRaw(Node [] nodes) throws Exception {
@@ -74,33 +92,34 @@ public class Project extends PA6API {
         return this.sendSafe(this.requestAPI("/project/execute").POST(postData).build());
     }
 
-    public HttpResponse<String> isRunningRaw(String waveId) throws Exception {
+    public HttpResponse<String> isRunningRaw(long waveId) throws Exception {
         return this.sendSafe(
             this.requestAPI("/project/is-running?prjUUID=" + this.uuid + "&executionWave=" + waveId).GET().build()
         );
     }
 
-    public Boolean isRunning(String waveId) throws Exception {
+    public Boolean isRunning(long waveId) throws Exception {
         HttpResponse<String> resp = isRunningRaw(waveId);
         Map<String, Object> json = gson.fromJson(resp.body(), HashMap.class);
         Object result = json.get("result");
-        if (result == null)
-            throw new IOException("Unexcepted format of result");
+        if (result == null || result instanceof Double == false)
+            throw new APIResultException();
 
-        return result.equals(1.0);
+        return (long)(double)result == 1;
     }
 
-    public String execute(Node[] nodes) throws Exception {
+    public long execute(Node[] nodes) throws Exception {
         HttpResponse<String> resp = executeRaw(nodes);
         if (resp.statusCode() == 202)
-            return parseExecutionWaveId(resp.headers());
-        return "";
+            return Long.valueOf(parseExecutionWaveId(resp.headers()));
+
+        return -1;
     }
 
-    public String execute(Node[] nodes, Boolean wait) throws Exception {
-        String waveId = execute(nodes);
-        if (waveId.isEmpty())
-            throw new IOException("Unexpected format of result");
+    public long execute(Node[] nodes, Boolean wait) throws Exception {
+        long waveId = execute(nodes);
+        if (wait && waveId == -1)
+            throw new APIResultException();
 
         while (wait && isRunning(waveId)) {
             TimeUnit.SECONDS.sleep(1);
