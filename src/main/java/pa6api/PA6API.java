@@ -26,27 +26,24 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 
 public class PA6API {
-    private String url;
+    protected String url;
     private String userName;
     private String password;
     private String baseUrl = "/polyanalyst";
     private String apiVersion = "1.0";
     private String api = "/api/v";
-    private String sid = "";
+    protected String sid = "";
     protected Gson gson = new Gson();
     protected HttpClient client;
     
-    public PA6API(String url, String userName, String pwd) throws Exception {
-        this(url, userName, pwd, "");
+    public PA6API(String url) throws Exception {
+        this(url, "");
     }
 
-    protected PA6API(String url, String userName, String pwd, String sid) throws Exception {
+    protected PA6API(String url, String sid) throws Exception {
         this.url = url;
-        this.userName = userName;
-        this.password = pwd;
         this.sid = sid;
 
         final Properties props = System.getProperties(); 
@@ -139,10 +136,10 @@ public class PA6API {
         return sendSafe(this.requestAPI("/server/info").GET().build());
     }
 
-    public HttpResponse<String> login() throws Exception {
+    public HttpResponse<String> login(String userName, String pwd) throws Exception {
         final String post = String.join("&",
-            "uname=" + URLEncoder.encode(this.userName, StandardCharsets.UTF_8.toString()),
-            "pwd=" + URLEncoder.encode(this.password, StandardCharsets.UTF_8.toString())
+            "uname=" + URLEncoder.encode(userName, StandardCharsets.UTF_8.toString()),
+            "pwd=" + URLEncoder.encode(pwd, StandardCharsets.UTF_8.toString())
         );
         HttpResponse<String> resp = sendSafe(
             this.request("/login")
@@ -170,7 +167,7 @@ public class PA6API {
     }
 
     public Project project(String uuid) throws Exception {
-        Project prj = new Project(uuid, this.url, this.userName, this.password, this.sid);
+        Project prj = new Project(uuid, this.url, this.sid);
         prj.getNodeListRaw();
         return prj;
     }

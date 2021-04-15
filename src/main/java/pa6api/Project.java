@@ -1,6 +1,5 @@
 package pa6api;
 
-import java.io.IOException;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublisher;
@@ -13,17 +12,17 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class Project extends PA6API {
-    private String uuid;
-    private Map<String, Object> postParams = new HashMap<String, Object>();
+    protected String prjUUID;
+    protected Map<String, Object> postParams = new HashMap<String, Object>();
 
-    public Project(String uuid, String url, String userName, String pwd, String sid) throws Exception {
-        super(url, userName, pwd, sid);
-        this.uuid = uuid;
-        this.postParams.put("prjUUID", uuid);
+    protected Project(String prjUUID, String url, String sid) throws Exception {
+        super(url, sid);
+        this.prjUUID = prjUUID;
+        this.postParams.put("prjUUID", prjUUID);
     }
 
     protected HttpResponse<String> getNodeListRaw() throws Exception {
-        return this.sendSafe(this.requestAPI("/project/nodes?prjUUID=" + this.uuid).GET().build());
+        return this.sendSafe(this.requestAPI("/project/nodes?prjUUID=" + this.prjUUID).GET().build());
     }
 
     public List<Node> getNodeList() throws Exception {
@@ -45,7 +44,7 @@ public class Project extends PA6API {
 
     protected HttpResponse<String> getExecutionStatsRaw() throws Exception {
         return this.sendSafe(
-            this.requestAPI("/project/execution-statistics?prjUUID=" + this.uuid).GET().build()
+            this.requestAPI("/project/execution-statistics?prjUUID=" + this.prjUUID).GET().build()
         );
     }
 
@@ -64,7 +63,7 @@ public class Project extends PA6API {
 
     protected HttpResponse<String> getTasksRaw() throws Exception {
         return this.sendSafe(
-            this.requestAPI("/project/tasks?prjUUID=" + this.uuid).GET().build()
+            this.requestAPI("/project/tasks?prjUUID=" + this.prjUUID).GET().build()
         );
     }
 
@@ -94,7 +93,7 @@ public class Project extends PA6API {
 
     public HttpResponse<String> isRunningRaw(long waveId) throws Exception {
         return this.sendSafe(
-            this.requestAPI("/project/is-running?prjUUID=" + this.uuid + "&executionWave=" + waveId).GET().build()
+            this.requestAPI("/project/is-running?prjUUID=" + this.prjUUID + "&executionWave=" + waveId).GET().build()
         );
     }
 
@@ -126,6 +125,10 @@ public class Project extends PA6API {
         }
 
         return waveId;
+    }
+
+    public Dataset getDataset(long objId) throws Exception {
+        return new Dataset(prjUUID, objId, url, sid);
     }
 
     public HttpResponse<String> save() throws Exception {

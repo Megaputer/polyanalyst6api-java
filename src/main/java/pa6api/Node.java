@@ -21,6 +21,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return "name: \"" + name + "\", type: \"" + type + "\", id: \"" + id + "\", status: \"" + status + "\"";
+        return "{ name: \"" + name + "\", type: \"" + type + "\", id: \"" + id + "\", status: \"" + status + "\" }";
     }
 }
