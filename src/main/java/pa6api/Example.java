@@ -1,7 +1,5 @@
 package pa6api;
 
-import java.util.List;
-
 public final class Example {
     private Example() {
     }
@@ -12,7 +10,7 @@ public final class Example {
             int crimedataId = 236;
             int numSeqId = 12;
             int cardataId = 25;
-            api = new PA6API("https://10.0.0.9:5043");
+            api = PA6APIImpl.create("https://10.0.0.9:5043");
             api.login("administrator", "");
             Project prj = api.project("b48c8063-c51b-4a5c-bda2-666f4783442f");
             Dataset ds = prj.getDataset(crimedataId);
