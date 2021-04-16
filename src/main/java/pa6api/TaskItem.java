@@ -3,13 +3,13 @@ package pa6api;
 import java.util.Map;
 
 public class TaskItem {
-    public String name;
-    public long objId;
-    public double progress;
-    public double subProgress;
-    public String currentState;
-    public long startTime;
-    public int state;
+    public String name = "";
+    public long objId = -1;
+    public double progress = 0;
+    public double subProgress = 0;
+    public String currentState = "";
+    public long startTime = 0;
+    public int state = 0;
 
     static TaskItem fromMap(Map<String, Object> map) {
         TaskItem task = new TaskItem();
@@ -25,13 +25,13 @@ public class TaskItem {
 
     @Override
     public String toString() {
-        String str = "name: \"" + name + "\"";
+        String str = "{name: \"" + name + "\"";
         str += ", objId: " + objId;
         str += ", progress: " + progress;
         str += ", subProgress: " + subProgress;
         str += ", currentState: \"" + currentState + "\"";
         str += ", startTime: " + startTime;
-        str += ", state: " + state;
+        str += ", state: " + state + "}";
 
         return str;
     }

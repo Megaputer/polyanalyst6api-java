@@ -3,11 +3,11 @@ package pa6api;
 import java.util.Map;
 
 public class Node {
-    String name = "";
-    String type = "";
+    public String name = "";
+    public String type = "";
 
-    long id;
-    String status = "";
+    public long id = -1;
+    public String status = "";
 
     static Node fromMap(Map<String, Object> map) {
         Node node = new Node();
