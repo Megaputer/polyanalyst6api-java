@@ -46,5 +46,6 @@ mvn clean package
 Then manually install the following JARs:
 
 * `target/pa6api-1.0.jar`
+* `target/pa6api-1.0-sources.jar`
 
 
