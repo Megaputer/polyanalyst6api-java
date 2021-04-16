@@ -12,9 +12,9 @@ public final class Example {
             int cardataId = 25;
             api = PA6APIImpl.create("https://10.0.0.9:5043");
             api.login("administrator", "");
-            Project prj = api.project("b48c8063-c51b-4a5c-bda2-666f4783442f");
-            Dataset ds = prj.getDataset(11);
-            System.out.println( ds.getValues(0, 1) );
+            //Project prj = api.project("b48c8063-c51b-4a5c-bda2-666f4783442f");
+            Project prj = api.project("fcb2a7f7-c65e-40c5-b0b0-6393069cbc9f");
+            prj.delete();
         } catch (Exception e) {
             System.out.print(e);
         }

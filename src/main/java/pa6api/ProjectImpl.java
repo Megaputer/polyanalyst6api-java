@@ -131,22 +131,31 @@ class ProjectImpl extends PA6APIImpl implements Project {
         return new DatasetImpl(prjUUID, objId, url, sid);
     }
 
-    public HttpResponse<String> save() throws Exception {
-        return this.sendSafe(
-            this.requestAPI("/project/save").POST(BodyPublishers.ofString(postParams())).build()
-        );
+    public void save() throws Exception {
+        sendSafe(requestAPI("/project/save").POST(BodyPublishers.ofString(postParams())).build()).body();
     }
 
-    public HttpResponse<String> abort() throws Exception {
-        return this.sendSafe(
-            this.requestAPI("/project/global-abort").POST(BodyPublishers.ofString(postParams())).build()
-        );
+    public void delete() throws Exception {
+        delete(false);
     }
 
-    public HttpResponse<String> unload() throws Exception {
-        return this.sendSafe(
-            this.requestAPI("/project/unload").POST(BodyPublishers.ofString(postParams())).build()
-        );
+    public void delete(Boolean forceUnload) throws Exception {
+        Map<String, Object> post = new HashMap<String, Object>(postParams);
+        post.put("forceUnload", forceUnload);
+
+        sendSafe(requestAPI("/project/delete").POST(BodyPublishers.ofString(gson.toJson(post))).build()).body();
+    }
+
+    public void repair() throws Exception {
+        sendSafe(requestAPI("/project/repair").POST(BodyPublishers.ofString(postParams())).build()).body();
+    }
+
+    public void abort() throws Exception {
+        sendSafe(requestAPI("/project/global-abort").POST(BodyPublishers.ofString(postParams())).build());
+    }
+
+    public void unload() throws Exception {
+        sendSafe(requestAPI("/project/unload").POST(BodyPublishers.ofString(postParams())).build());
     }
 
     private static String EXECUTION_WAVE = "executionWave="; 

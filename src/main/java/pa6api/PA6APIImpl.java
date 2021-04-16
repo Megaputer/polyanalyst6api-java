@@ -138,6 +138,15 @@ public class PA6APIImpl implements PA6API {
         return sendSafe(this.requestAPI("/server/info").GET().build());
     }
 
+    public ServerInfo serverInfo() throws Exception {
+        String res = serverInfoRaw().body();
+        Map<String, Object> json = gson.fromJson(res, Map.class);
+        if (!json.containsKey("build") || !json.containsKey("version"))
+            throw new APIResultException("Expected \"build\" and \"version\" keys");
+
+        return ServerInfo.fromMap(json);
+    }
+
     public void login(String userName, String pwd) throws Exception {
         final String post = String.join("&",
             "uname=" + URLEncoder.encode(userName, StandardCharsets.UTF_8.toString()),
