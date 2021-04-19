@@ -95,4 +95,5 @@ public interface Project {
      * @throws Exception
      */
     public Dataset getDataset(long objId) throws Exception;
+    public Dataset getDataset(String name) throws Exception;
 }

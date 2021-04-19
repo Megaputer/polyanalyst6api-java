@@ -131,6 +131,16 @@ class ProjectImpl extends PA6APIImpl implements Project {
         return new DatasetImpl(prjUUID, objId, url, sid);
     }
 
+    public Dataset getDataset(String name) throws Exception {
+        List<Node> nodes = getNodeList();
+        for (Node node : nodes) {
+            if (name.equals(node.name))
+                return new DatasetImpl(prjUUID, node.id, url, sid);
+        }
+
+        throw new RuntimeException("Dataset with name \"" + name + "\" not found");
+    }
+
     public void save() throws Exception {
         sendSafe(requestAPI("/project/save").POST(BodyPublishers.ofString(postParams())).build()).body();
     }
