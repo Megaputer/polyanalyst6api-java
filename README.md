@@ -80,7 +80,7 @@ try {
   // Iterate over all rows
   long offset = 0;
   List<List<Object>> rows = ds.getValues(offset, 100);
-  while (rows.size() > 0) {
+  while (!rows.isEmpty()) {
     offset += rows.size();
     rows = ds.getValues(offset, 100);
   }
