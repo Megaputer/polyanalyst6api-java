@@ -79,10 +79,11 @@ try {
   
   // Iterate over all rows
   long offset = 0;
-  List<List<Object>> rows = ds.getValues(offset, 100);
+  long rowsNum = 100;
+  List<List<Object>> rows = ds.getValues(offset, rowsNum);
   while (!rows.isEmpty()) {
     offset += rows.size();
-    rows = ds.getValues(offset, 100);
+    rows = ds.getValues(offset, rowsNum);
   }
 } catch (Exception e) {
   System.out.print(e);
