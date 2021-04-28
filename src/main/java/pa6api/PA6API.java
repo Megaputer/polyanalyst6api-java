@@ -9,7 +9,7 @@ public interface PA6API {
      * @param pwd
      * @throws Exception
      */
-    public void login(String userName, String pwd) throws Exception;
+    public String login(String userName, String pwd) throws Exception;
 
     /**
      * Function to logout
@@ -38,4 +38,10 @@ public interface PA6API {
      * @throws Exception
      */
     public Project project(String uuid) throws Exception;
+
+    /**
+     * Function to get drive api instance
+     * @return drive api instance
+     */
+    public Drive drive() throws Exception;
 }

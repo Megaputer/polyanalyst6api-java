@@ -1,5 +1,7 @@
 package pa6api;
 
+import java.io.File;
+
 public final class Example {
     private Example() {
     }
@@ -7,14 +9,21 @@ public final class Example {
     public static void main(String[] args) {
         PA6API api;
         try {
-            int crimedataId = 236;
-            int numSeqId = 12;
-            int cardataId = 25;
-            api = PA6APIImpl.create("https://10.0.0.9:5043");
+            api = PA6APIImpl.create("https://10.0.0.9:5043", "2495735f836100cd");
             api.login("administrator", "");
-            //Project prj = api.project("b48c8063-c51b-4a5c-bda2-666f4783442f");
-            Project prj = api.project("fcb2a7f7-c65e-40c5-b0b0-6393069cbc9f");
-            prj.delete();
+            Drive drive = api.drive();
+            /*drive.deleteFolder("photo", "");
+            drive.createFolder("photo", "");
+
+            drive.uploadFolder("c:/temp/photo", "photo", new ProgressHandler(){
+                @Override
+                public void onProgress(float perc, long bytesUploaded, long bytesTotal) {
+                    if (perc == 100) {
+                        System.out.println(uploadedFiles + " of " + totalFiles);
+                    }
+                }
+            });*/
+            drive.downloadFile("IMG_20181031_191318.jpg", "photo", "");
         } catch (Exception e) {
             System.out.print(e);
         }

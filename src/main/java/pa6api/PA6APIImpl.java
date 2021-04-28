@@ -1,6 +1,7 @@
 package pa6api;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -13,9 +14,9 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -42,6 +43,10 @@ public class PA6APIImpl implements PA6API {
 
     public static PA6API create(String url) throws Exception {
         return new PA6APIImpl(url);
+    }
+
+    public static PA6API create(String url, String sid) throws Exception {
+        return new PA6APIImpl(url, sid);
     }
 
     protected PA6APIImpl(String url, String sid) throws Exception {
@@ -82,11 +87,11 @@ public class PA6APIImpl implements PA6API {
         }
     };
 
-    private String getAPIUrl(String handler) {
+    protected String getAPIUrl(String handler) {
         return this.url + this.baseUrl + this.api + this.apiVersion + handler;
     }
 
-    private String getUrl(String handler) {
+    protected String getUrl(String handler) {
         return this.url + this.baseUrl + handler;
     }
 
@@ -112,14 +117,14 @@ public class PA6APIImpl implements PA6API {
         return this.request(handler, false);
     }
 
-    protected HttpResponse<String> sendSafe(HttpRequest req, BodyHandler<String> handler) throws Exception {
-        HttpResponse<String> resp = this.client.send(req, handler);
+    protected <T> HttpResponse<T> sendSafe(HttpRequest req, BodyHandler<T> handler) throws Exception {
+        HttpResponse<T> resp = this.client.send(req, handler);
         if (resp.statusCode() == 200 || resp.statusCode() == 202)
             return resp;
 
         APIExeption apiError;
         try {
-            Map<String, Object> json = gson.fromJson(resp.body(), Map.class);
+            Map<String, Object> json = gson.fromJson(resp.body().toString(), Map.class);
             Map<String, Object> error = Map.class.cast(json.get("error"));
             String title = error.containsKey("title") ? error.get("title").toString() : "";
             String message = error.containsKey("message") ? error.get("message").toString() : "";
@@ -132,6 +137,10 @@ public class PA6APIImpl implements PA6API {
 
     protected HttpResponse<String> sendSafe(HttpRequest req) throws Exception {
         return sendSafe(req, BodyHandlers.ofString());
+    }
+
+    protected HttpResponse<InputStream> sendAndGetStream(HttpRequest req) throws Exception {
+        return sendSafe(req, BodyHandlers.ofInputStream());
     }
 
     protected HttpResponse<String> serverInfoRaw() throws Exception {
@@ -147,7 +156,7 @@ public class PA6APIImpl implements PA6API {
         return ServerInfo.fromMap(json);
     }
 
-    public void login(String userName, String pwd) throws Exception {
+    public String login(String userName, String pwd) throws Exception {
         final String post = String.join("&",
             "uname=" + URLEncoder.encode(userName, StandardCharsets.UTF_8.toString()),
             "pwd=" + URLEncoder.encode(pwd, StandardCharsets.UTF_8.toString())
@@ -160,6 +169,7 @@ public class PA6APIImpl implements PA6API {
         );
 
         this.sid = findSID(resp.headers());
+        return this.sid;
     }
 
     public void logout() throws Exception {
@@ -180,6 +190,10 @@ public class PA6APIImpl implements PA6API {
         ProjectImpl prj = new ProjectImpl(uuid, this.url, this.sid);
         prj.getNodeListRaw();
         return prj;
+    }
+
+    public Drive drive() throws Exception {
+        return new DriveImpl(this.url, this.sid);
     }
 
     private static final String SID_KEY = "sid=";
