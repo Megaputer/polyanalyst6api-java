@@ -158,8 +158,8 @@ public class PA6APIImpl implements PA6API {
 
     public String login(String userName, String pwd) throws Exception {
         final String post = String.join("&",
-            "uname=" + URLEncoder.encode(userName, StandardCharsets.UTF_8.toString()),
-            "pwd=" + URLEncoder.encode(pwd, StandardCharsets.UTF_8.toString())
+            "uname=" + URLEncoder.encode(userName, StandardCharsets.UTF_8),
+            "pwd=" + URLEncoder.encode(pwd, StandardCharsets.UTF_8)
         );
         HttpResponse<String> resp = sendSafe(
             this.request("/login")
@@ -168,8 +168,24 @@ public class PA6APIImpl implements PA6API {
             .build()
         );
 
-        this.sid = findSID(resp.headers());
-        return this.sid;
+        return this.sid = findSID(resp.headers());
+    }
+
+    public String ldapLogin(String userName, String pwd, String ldapServer) throws Exception {
+        final String post = String.join("&",
+            "uname=" + URLEncoder.encode(userName, StandardCharsets.UTF_8),
+            "pwd=" + URLEncoder.encode(pwd, StandardCharsets.UTF_8),
+            "useLDAP=1",
+            "svr=" + URLEncoder.encode(ldapServer, StandardCharsets.UTF_8)
+        );
+        HttpResponse<String> resp = sendSafe(
+            this.request("/login")
+            .POST(BodyPublishers.ofString(post))
+            .setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
+            .build()
+        );
+
+        return this.sid = findSID(resp.headers());
     }
 
     public void logout() throws Exception {

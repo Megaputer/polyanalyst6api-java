@@ -89,11 +89,18 @@ public interface Project {
     public Boolean isRunning(long waveId) throws Exception;
 
     /**
-     * Function to get Dataset object type. If node is not dataset or project does not have object with a specific objId it will throw error 
+     * Function to get Dataset object type by id. If node is not a dataset or project does not have object with a specific objId it will throw error 
      * @param objId dataset id that can be get by getNodeList function
      * @return Dataset object type
      * @throws Exception
      */
     public Dataset getDataset(long objId) throws Exception;
+
+    /**
+     * Function to get Dataset object type by name. If node is not a dataset or project does not have object with a specific objId it will throw error 
+     * @param name dataset name
+     * @return Dataset object type
+     * @throws Exception
+     */
     public Dataset getDataset(String name) throws Exception;
 }

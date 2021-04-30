@@ -7,9 +7,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublishers;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +97,13 @@ class DriveImpl extends PA6APIImpl implements Drive {
         Map<String, String> json = gson.fromJson(resp.body(), Map.class);
 
         InputStream is = sendAndGetStream(request("/download?uid=" + json.get("uid")).GET().build()).body();
-        OutputStream os = new FileOutputStream(localPath + remoteName);
+        
+        String outputPath = localPath;
+        if (!outputPath.endsWith("/") && !outputPath.endsWith("\\"))
+            outputPath += File.separator;
+        outputPath += remoteName;
+
+        OutputStream os = new FileOutputStream(outputPath);
         int readSize = -1;
         byte buf[] = new byte[1024 * 512];
         while ((readSize = is.read(buf)) != -1) {

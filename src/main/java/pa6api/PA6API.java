@@ -12,6 +12,15 @@ public interface PA6API {
     public String login(String userName, String pwd) throws Exception;
 
     /**
+     * Function to login by username, password and ldapServer
+     * @param userName
+     * @param pwd
+     * @param ldapServer
+     * @throws Exception
+     */
+    public String ldapLogin(String userName, String pwd, String ldapServer) throws Exception;
+
+    /**
      * Function to logout
      * @throws Exception
      */
