@@ -1,6 +1,7 @@
 package pa6api;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Project {
     /**
@@ -88,6 +89,7 @@ public interface Project {
      */
     public Boolean isRunning(long waveId) throws Exception;
 
+
     /**
      * Function to get Dataset object type by id. If node is not a dataset or project does not have object with a specific objId it will throw error 
      * @param objId dataset id that can be get by getNodeList function
@@ -103,4 +105,19 @@ public interface Project {
      * @throws Exception
      */
     public Dataset getDataset(String name) throws Exception;
+
+    /**
+     * Sets `node_type` parameters and strategies for the Parameters node.
+     * @param nodeId: node id
+     * @param nodeType: node type which parameters needs to be set
+     * @param params: node type parameters
+     * @param strategies: node type strategies
+     * @param unsync: reset status of the Parameters node
+     * @param hardUpd: update every child node with new parameters if True, \
+            otherwise reset their statuses. Works only if unsync is True
+     * @return List of warnings or null when no warnings
+     * @throws Exception
+     */
+    public List<String> parameterNodeSet(long nodeId, String nodeType, Map<String, String> params, List<Integer> strategies, Boolean unsync, Boolean hardUpd) throws Exception;
+    public List<String> parameterNodeSet(String nodeName, String nodeType, Map<String, String> params, List<Integer> strategies, Boolean unsync, Boolean hardUpd) throws Exception;
 }

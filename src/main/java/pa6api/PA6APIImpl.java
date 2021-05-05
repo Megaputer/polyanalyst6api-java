@@ -1,6 +1,5 @@
 package pa6api;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -14,9 +13,11 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+
 import java.security.SecureRandom;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -210,6 +211,25 @@ public class PA6APIImpl implements PA6API {
 
     public Drive drive() throws Exception {
         return new DriveImpl(this.url, this.sid);
+    }
+
+    public void runTask(long id) throws Exception {
+        final Map<String, Object> json = new HashMap<>();
+        json.put("taskId", id);
+        final String post = gson.toJson(json);
+        sendSafe(requestAPI("/scheduler/run-task").POST(BodyPublishers.ofString(post)).build());
+    }
+
+    public List<ParameterNode> getParameterNodes() throws Exception {
+        String json = sendSafe(requestAPI("/parameters/nodes").GET().build()).body();
+        List<Map<String, Object>> nodes = gson.fromJson(json, List.class);
+
+        List<ParameterNode> res = new ArrayList<>();
+        for(Map<String, Object> map : nodes) {
+            res.add(ParameterNode.fromMap(map));
+        }
+
+        return res;
     }
 
     private static final String SID_KEY = "sid=";

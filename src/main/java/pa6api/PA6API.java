@@ -53,4 +53,18 @@ public interface PA6API {
      * @return drive api instance
      */
     public Drive drive() throws Exception;
+
+    /**
+     * Initiates scheduler task execution
+     * @param id - task ID
+     * @throws Exception
+     */
+    public void runTask(long id) throws Exception;
+
+    /**
+     * Returns list of nodes with parameters and strategies supported by Parameters node.
+     * @return
+     * @throws Exception
+     */
+    public List<ParameterNode> getParameterNodes() throws Exception;
 }

@@ -141,8 +141,28 @@ class ProjectImpl extends PA6APIImpl implements Project {
         throw new RuntimeException("Dataset with name \"" + name + "\" not found");
     }
 
+    public List<String> parameterNodeSet(long nodeId, String nodeType, Map<String, String> params, List<Integer> strategies, Boolean unsync, Boolean hardUpd) throws Exception {
+        Map<String, Object> post = new HashMap<>();
+        post.put("type", nodeType);
+        post.put("settings", params);
+        post.put("strategies", strategies);
+        post.put("declareUnsync", unsync);
+        post.put("hardUpdate", hardUpd);
+        final String urlParams = "prjUUID=" + prjUUID + "&obj=" + nodeId;
+        return gson.fromJson(sendSafe(requestAPI("/parameters/configure?" + urlParams).POST(BodyPublishers.ofString(gson.toJson(post))).build()).body(), List.class);
+    }
+
+    public List<String> parameterNodeSet(String nodeName, String nodeType, Map<String, String> params, List<Integer> strategies, Boolean unsync, Boolean hardUpd) throws Exception {
+        List<Node> nodes = getNodeList();
+        for (Node node : nodes) {
+            if (nodeName.equals(node.name))
+                return parameterNodeSet(node.id, nodeType, params, strategies, unsync, hardUpd);
+        }
+        throw new RuntimeException("Parameter node with name \"" + nodeName + "\" not found");
+    }
+
     public void save() throws Exception {
-        sendSafe(requestAPI("/project/save").POST(BodyPublishers.ofString(postParams())).build()).body();
+        sendSafe(requestAPI("/project/save").POST(BodyPublishers.ofString(postParams())).build());
     }
 
     public void delete() throws Exception {
@@ -153,11 +173,11 @@ class ProjectImpl extends PA6APIImpl implements Project {
         Map<String, Object> post = new HashMap<String, Object>(postParams);
         post.put("forceUnload", forceUnload);
 
-        sendSafe(requestAPI("/project/delete").POST(BodyPublishers.ofString(gson.toJson(post))).build()).body();
+        sendSafe(requestAPI("/project/delete").POST(BodyPublishers.ofString(gson.toJson(post))).build());
     }
 
     public void repair() throws Exception {
-        sendSafe(requestAPI("/project/repair").POST(BodyPublishers.ofString(postParams())).build()).body();
+        sendSafe(requestAPI("/project/repair").POST(BodyPublishers.ofString(postParams())).build());
     }
 
     public void abort() throws Exception {
